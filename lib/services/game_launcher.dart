@@ -3,52 +3,42 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:path_provider/path_provider.dart';
 
 class GameLauncher {
-  static const String packageName = 'com.kingsng.kingsng_roleplay';
+  // SA-MP app package info
+  static const String sampPackageName = 'ro.alyn_sampmobile.game';
   static const String filesFolder = 'files';
   static const String cleoZip = 'cleo.zip';
+  
+  // Server connection info - LetMeHost server
+  static const String serverIP = '51.38.205.167';
+  static const String serverPort = '29291';
+  static const String serverAddress = '$serverIP:$serverPort';
 
-  static const String defaultStoragePath = '/storage/emulated/0/Android/data/$packageName';
+  static const String defaultStoragePath = '/storage/emulated/0/Android/data/$sampPackageName';
 
-  static Future<String> _resolvedExternalRoot() async {
-    final dir = await getExternalStorageDirectory();
-    if (dir == null) return '';
-
-    final path = dir.path;
-    final index = path.indexOf('Android/data');
-    if (index != -1) {
-      return path.substring(0, index);
-    }
-
-    return path;
-  }
-
-  /// Get the app data directory path and create it if missing
+  /// Get SA-MP game data path (where game files should be placed)
   static Future<String> getGameDataPath() async {
     if (!Platform.isAndroid) return '';
 
     try {
-      var rootPath = await _resolvedExternalRoot();
-      if (rootPath.isEmpty) {
-        rootPath = '/storage/emulated/0';
+      final dir = await getExternalStorageDirectory();
+      if (dir != null) {
+        final path = dir.path;
+        final index = path.indexOf('Android/data');
+        if (index != -1) {
+          final sampPath = '${path.substring(0, index)}Android/data/$sampPackageName';
+          final sampDir = Directory(sampPath);
+          if (!await sampDir.exists()) {
+            await sampDir.create(recursive: true);
+          }
+          return sampPath;
+        }
       }
-
-      final packageDir = Directory('$rootPath/Android/data/$packageName');
-      if (!await packageDir.exists()) {
-        await packageDir.create(recursive: true);
-      }
-
-      final requiredFilesDir = Directory('${packageDir.path}/$filesFolder');
-      if (!await requiredFilesDir.exists()) {
-        await requiredFilesDir.create(recursive: true);
-      }
-
-      return packageDir.path;
-    } catch (_) {
-      return '';
-    }
+    } catch (_) {}
+    
+    return defaultStoragePath;
   }
 
-  /// Check if both required files exist
+  /// Check if both required files exist in SA-MP folder
   static Future<bool> validateGameFiles() async {
     try {
       final gameDataPath = await getGameDataPath();
@@ -92,8 +82,7 @@ class GameLauncher {
     }
   }
 
-  /// Launch SA-MP game
-  /// Launch SA-MP game with proper validation
+  /// Launch SA-MP with auto-connect to LetMeHost server
   static Future<bool> launchSAMP() async {
     if (!Platform.isAndroid) return false;
 
@@ -103,11 +92,17 @@ class GameLauncher {
         return false;
       }
 
-      const intent = AndroidIntent(
+      // Launch SA-MP with server connection intent
+      final intent = AndroidIntent(
         action: 'android.intent.action.MAIN',
-        package: 'ro.alyn_sampmobile.game',
-        componentName: 'ro.alyn_sampmobile.game/ro.alyn_sampmobile.game.MainActivity',
+        package: sampPackageName,
+        componentName: '$sampPackageName/$sampPackageName.MainActivity',
         flags: <int>[0x10000000],
+        arguments: <String, dynamic>{
+          'connect_to': serverAddress,
+          'server': serverIP,
+          'port': int.parse(serverPort),
+        },
       );
       await intent.launch();
       return true;
@@ -130,6 +125,6 @@ class GameLauncher {
     if (!filesOk) missing.add('"files" folder');
     if (!cleoOk) missing.add('"cleo.zip"');
 
-    return '✗ Missing: ${missing.join(', ')}. Download and extract the modpack.';
+    return '✗ Missing: ${missing.join(', ')}. Download and extract the modpack to: Android/data/$sampPackageName/';
   }
 }
