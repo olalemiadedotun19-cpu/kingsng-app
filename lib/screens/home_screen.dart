@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/game_launcher.dart';
@@ -69,6 +70,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not open the link. Please try again.')),
+      );
+    }
+  }
+
+  Future<void> _openGameFolder() async {
+    if (!Platform.isAndroid) return;
+
+    var path = _storagePath;
+    if (path.isEmpty) {
+      path = await GameLauncher.getGameDataPath();
+    }
+
+    if (path.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not locate the game folder.')),
+      );
+      return;
+    }
+
+    final intent = AndroidIntent(
+      action: 'android.intent.action.VIEW',
+      data: Uri.file(path).toString(),
+      flags: <int>[0x10000000],
+    );
+
+    try {
+      await intent.launch();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to open folder. Please use a file manager.')),
       );
     }
   }
@@ -209,7 +242,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 children: [
                   Expanded(child: _Btn(icon: Icons.gavel, label: 'Rules', onTap: () => _openUrl('https://kingsng.netlify.app/rules'))),
                   const SizedBox(width: 12),
+                  Expanded(child: _Btn(icon: Icons.folder_open, label: 'Open Folder', onTap: _openGameFolder)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
                   Expanded(child: _Btn(icon: Icons.download_rounded, label: 'Modpack', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
+                  const SizedBox(width: 12),
+                  Expanded(child: _Btn(icon: Icons.play_arrow_rounded, label: _filesReady ? 'Play Now' : 'Get Modpack', onTap: _filesReady ? _launchGame : () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
                 ],
               ),
             ],
@@ -290,6 +331,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 _Btn(icon: Icons.discord, label: 'Discord', onTap: () => _openUrl('https://discord.gg/kingsng')),
                 const SizedBox(height: 16),
                 _Btn(icon: Icons.gavel, label: 'Rules', onTap: () => _openUrl('https://kingsng.netlify.app/rules')),
+                const SizedBox(height: 16),
+                _Btn(icon: Icons.folder_open, label: 'Open Folder', onTap: _openGameFolder),
                 const SizedBox(height: 16),
                 _Btn(icon: Icons.download_rounded, label: 'Modpack', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath)))),
                 const SizedBox(height: 16),
