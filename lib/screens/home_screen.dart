@@ -114,7 +114,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isLandscape = constraints.maxWidth > constraints.maxHeight;
-            return isLandscape ? _buildLandscape(context) : _buildPortrait(context);
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: isLandscape ? _buildLandscape(context) : _buildPortrait(context),
+                ),
+              ),
+            );
           },
         ),
       ),
