@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../services/game_launcher.dart';
+
 class SettingsScreen extends StatelessWidget {
   final String storagePath;
-  const SettingsScreen({super.key, this.storagePath = 'Android/data/com.kingsng.roleplay/'});
+  const SettingsScreen({super.key, String? storagePath}) : storagePath = storagePath ?? GameLauncher.defaultStoragePath;
 
   @override
   Widget build(BuildContext context) {

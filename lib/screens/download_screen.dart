@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../services/game_launcher.dart';
+
 class DownloadScreen extends StatelessWidget {
   final String storagePath;
-  const DownloadScreen({super.key, this.storagePath = 'Android/data/com.kingsng.roleplay/'});
+  const DownloadScreen({super.key, String? storagePath}) : storagePath = storagePath ?? GameLauncher.defaultStoragePath;
 
   void _openModpack() async {
     final uri = Uri.parse('https://www.mediafire.com/file/ud0b1qrka3h8rvn/');
