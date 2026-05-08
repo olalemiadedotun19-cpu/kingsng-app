@@ -54,7 +54,7 @@ class DownloadScreen extends StatelessWidget {
                   Text('1. Download the modpack below', style: TextStyle(color: Colors.white70, fontSize: 13)),
                   Text('2. Open MT Manager', style: TextStyle(color: Colors.white70, fontSize: 13)),
                   Text('3. Extract the zip file', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                  Text('4. Move files to Android/data/ro.alyn_sampmobile.game/', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text('4. Move files to Android/data/com.kingsng.roleplay/', style: TextStyle(color: Colors.white70, fontSize: 13)),
                   Text('5. Open app and press PLAY', style: TextStyle(color: Colors.white70, fontSize: 13)),
                 ],
               ),

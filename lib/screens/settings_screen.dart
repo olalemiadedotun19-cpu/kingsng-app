@@ -19,7 +19,7 @@ class SettingsScreen extends StatelessWidget {
           _Tile(icon: Icons.dns, title: 'Server', subtitle: '51.38.205.167:29291'),
           _Tile(icon: Icons.language, title: 'Website', subtitle: 'kingsng.netlify.app'),
           _Tile(icon: Icons.info_outline, title: 'Version', subtitle: 'Kings Nigeria RP v1.0'),
-          _Tile(icon: Icons.folder_outlined, title: 'Game Files', subtitle: 'Android/data/ro.alyn_sampmobile.game/'),
+          _Tile(icon: Icons.folder_outlined, title: 'Game Files', subtitle: 'Android/data/com.kingsng.roleplay/'),
         ],
       ),
     );
