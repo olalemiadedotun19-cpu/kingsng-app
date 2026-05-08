@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final String storagePath;
+  const SettingsScreen({super.key, this.storagePath = 'Android/data/com.kingsng.roleplay/'});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +16,11 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
-        children: const [
-          _Tile(icon: Icons.dns, title: 'Server', subtitle: '51.38.205.167:29291'),
-          _Tile(icon: Icons.language, title: 'Website', subtitle: 'kingsng.netlify.app'),
-          _Tile(icon: Icons.info_outline, title: 'Version', subtitle: 'Kings Nigeria RP v1.0'),
-          _Tile(icon: Icons.folder_outlined, title: 'Game Files', subtitle: 'Android/data/com.kingsng.roleplay/'),
+        children: [
+          const _Tile(icon: Icons.dns, title: 'Server', subtitle: '51.38.205.167:29291'),
+          const _Tile(icon: Icons.language, title: 'Website', subtitle: 'kingsng.netlify.app'),
+          const _Tile(icon: Icons.info_outline, title: 'Version', subtitle: 'Kings Nigeria RP v1.0'),
+          _Tile(icon: Icons.folder_outlined, title: 'Game Files', subtitle: storagePath),
         ],
       ),
     );
