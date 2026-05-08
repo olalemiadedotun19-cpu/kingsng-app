@@ -93,6 +93,7 @@ class GameLauncher {
   }
 
   /// Launch SA-MP game
+  /// Launch SA-MP game with proper validation
   static Future<bool> launchSAMP() async {
     if (!Platform.isAndroid) return false;
 
@@ -106,10 +107,11 @@ class GameLauncher {
         action: 'android.intent.action.MAIN',
         package: 'ro.alyn_sampmobile.game',
         componentName: 'ro.alyn_sampmobile.game/ro.alyn_sampmobile.game.MainActivity',
+        flags: <int>[0x10000000],
       );
       await intent.launch();
       return true;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }
