@@ -16,6 +16,7 @@ dependencies:
   dio: ^5.4.1
   shared_preferences: ^2.2.2
   archive: ^3.4.10
+  android_intent_plus: ^4.0.0
 
 dev_dependencies:
   flutter_test:
