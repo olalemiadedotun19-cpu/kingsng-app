@@ -114,15 +114,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isLandscape = constraints.maxWidth > constraints.maxHeight;
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: SizedBox(
-                  width: constraints.maxWidth,
-                  child: isLandscape ? _buildLandscape(context) : _buildPortrait(context),
-                ),
-              ),
+            return SizedBox(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              child: isLandscape ? _buildLandscape(context, constraints) : _buildPortrait(context, constraints),
             );
           },
         ),
@@ -130,11 +125,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildPortrait(BuildContext context) {
+  Widget _buildPortrait(BuildContext context, BoxConstraints constraints) {
+    final width = constraints.maxWidth;
+    final height = constraints.maxHeight;
+    final compact = height < 720;
+    final iconSize = compact ? 72.0 : 90.0;
+    final titleSize = compact ? 46.0 : 56.0;
+    final subtitleSize = compact ? 12.0 : 13.0;
+    final infoFont = compact ? 12.0 : 13.0;
+    final buttonHeight = compact ? 52.0 : 60.0;
+    final buttonFont = compact ? 16.0 : 18.0;
+    final buttonWidth = width < 360 ? width - 40 : (width - 56) / 2;
+    final mainButtonWidth = width < 360 ? width - 80 : 220.0;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -142,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFF00E676).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.3)),
                 ),
                 child: const Row(
@@ -166,33 +174,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: [
               AnimatedBuilder(
                 animation: _pulseAnim,
-                builder: (context, child) => Icon(Icons.emoji_events, size: 90, color: Color.fromRGBO(0, 230, 118, _pulseAnim.value)),
+                builder: (context, child) => Icon(Icons.emoji_events, size: iconSize, color: Color.fromRGBO(0, 230, 118, _pulseAnim.value)),
               ),
-              const SizedBox(height: 20),
-              const Text('KINGS', style: TextStyle(fontSize: 56, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 10)),
-              Container(width: 200, height: 2, margin: const EdgeInsets.symmetric(vertical: 8),
+              SizedBox(height: compact ? 14 : 20),
+              Text('KINGS', style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 10)),
+              Container(width: width * 0.55, height: 2, margin: EdgeInsets.symmetric(vertical: compact ? 6 : 8),
                 decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent, Color(0xFF00E676), Colors.transparent]))),
-              const Text('N I G E R I A  R P', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF00E676), letterSpacing: 5)),
+              Text('N I G E R I A  R P', style: TextStyle(fontSize: compact ? 14 : 16, fontWeight: FontWeight.w600, color: const Color(0xFF00E676), letterSpacing: 5)),
               const SizedBox(height: 6),
-              const Text("Nigeria's #1 Roleplay Server", style: TextStyle(fontSize: 13, color: Colors.white38)),
-              const SizedBox(height: 20),
+              Text("Nigeria's #1 Roleplay Server", style: TextStyle(fontSize: subtitleSize, color: Colors.white38)),
+              SizedBox(height: compact ? 14 : 20),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 14, vertical: compact ? 12 : 14),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.15)),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Text(
                         _statusMessage,
-                        style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                        style: TextStyle(color: Colors.white70, fontSize: infoFont, height: 1.4),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     AnimatedBuilder(
                       animation: _pulseAnim,
                       builder: (context, child) => Icon(Icons.circle, size: 12, color: _filesReady ? Colors.greenAccent : Colors.orangeAccent.withValues(alpha: _pulseAnim.value)),
@@ -200,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: compact ? 14 : 20),
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -209,7 +217,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   child: AnimatedBuilder(
                     animation: _pulseAnim,
                     builder: (context, child) => Container(
-                      width: 220, height: 60,
+                      width: mainButtonWidth,
+                      height: buttonHeight,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(colors: _filesReady ? [const Color(0xFF00C853), const Color(0xFF00E676)] : [const Color(0xFF3E2723), const Color(0xFFD84315)]),
                         borderRadius: BorderRadius.circular(30),
@@ -218,11 +227,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(_filesReady ? Icons.play_arrow_rounded : Icons.download_rounded, color: Colors.white, size: 28),
+                          Icon(_filesReady ? Icons.play_arrow_rounded : Icons.download_rounded, color: Colors.white, size: compact ? 24 : 28),
                           const SizedBox(width: 8),
                           Text(
                             _filesReady ? 'PLAY NOW' : 'GET MODPACK',
-                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: 2),
+                            style: TextStyle(color: Colors.white, fontSize: buttonFont, fontWeight: FontWeight.w800, letterSpacing: 2),
                           ),
                         ],
                       ),
@@ -231,37 +240,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 12),
-              Text('51.38.205.167:29291', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 12)),
+              Text('51.38.205.167:29291', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: infoFont)),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, bottom: 40),
-          child: Column(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.center,
             children: [
-              Row(
-                children: [
-                  Expanded(child: _Btn(icon: Icons.language, label: 'Website', onTap: () => _openUrl('https://kingsng.netlify.app'))),
-                  const SizedBox(width: 12),
-                  Expanded(child: _Btn(icon: Icons.discord, label: 'Discord', onTap: () => _openUrl('https://discord.gg/kingsng'))),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(child: _Btn(icon: Icons.gavel, label: 'Rules', onTap: () => _openUrl('https://kingsng.netlify.app/rules'))),
-                  const SizedBox(width: 12),
-                  Expanded(child: _Btn(icon: Icons.folder_open, label: 'Open Folder', onTap: _openGameFolder)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(child: _Btn(icon: Icons.download_rounded, label: 'Modpack', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
-                  const SizedBox(width: 12),
-                  Expanded(child: _Btn(icon: Icons.play_arrow_rounded, label: _filesReady ? 'Play Now' : 'Get Modpack', onTap: _filesReady ? _launchGame : () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
-                ],
-              ),
+              SizedBox(width: buttonWidth, child: _Btn(icon: Icons.language, label: 'Website', onTap: () => _openUrl('https://kingsng.netlify.app'))),
+              SizedBox(width: buttonWidth, child: _Btn(icon: Icons.discord, label: 'Discord', onTap: () => _openUrl('https://discord.gg/kingsng'))),
+              SizedBox(width: buttonWidth, child: _Btn(icon: Icons.gavel, label: 'Rules', onTap: () => _openUrl('https://kingsng.netlify.app/rules'))),
+              SizedBox(width: buttonWidth, child: _Btn(icon: Icons.folder_open, label: 'Open Folder', onTap: _openGameFolder)),
+              SizedBox(width: buttonWidth, child: _Btn(icon: Icons.download_rounded, label: 'Modpack', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
+              SizedBox(width: buttonWidth, child: _Btn(icon: Icons.play_arrow_rounded, label: _filesReady ? 'Play Now' : 'Get Modpack', onTap: _filesReady ? _launchGame : () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
             ],
           ),
         ),
@@ -269,13 +264,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLandscape(BuildContext context) {
+  Widget _buildLandscape(BuildContext context, BoxConstraints constraints) {
+    final width = constraints.maxWidth;
+    final height = constraints.maxHeight;
+    final compact = height < 600 || width < 900;
+    final iconSize = compact ? 90.0 : 110.0;
+    final titleSize = compact ? 54.0 : 72.0;
+    final buttonSpacing = compact ? 10.0 : 14.0;
+    final buttonHeight = compact ? 50.0 : 56.0;
+    final buttonWidth = width / 2.5;
+
     return Row(
       children: [
         Expanded(
           flex: 3,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 24, vertical: compact ? 12 : 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,24 +308,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: compact ? 22 : 32),
                 AnimatedBuilder(
                   animation: _pulseAnim,
-                  builder: (context, child) => Icon(Icons.emoji_events, size: 110, color: Color.fromRGBO(0, 230, 118, _pulseAnim.value)),
+                  builder: (context, child) => Icon(Icons.emoji_events, size: iconSize, color: Color.fromRGBO(0, 230, 118, _pulseAnim.value)),
                 ),
-                const SizedBox(height: 24),
-                const Text('KINGS', style: TextStyle(fontSize: 72, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 12)),
-                Container(width: 260, height: 2, margin: const EdgeInsets.symmetric(vertical: 12),
+                SizedBox(height: compact ? 18 : 24),
+                Text('KINGS', style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 10)),
+                Container(width: width * 0.35, height: 2, margin: EdgeInsets.symmetric(vertical: compact ? 8 : 12),
                   decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent, Color(0xFF00E676), Colors.transparent]))),
-                const Text('N I G E R I A  R P', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF00E676), letterSpacing: 6)),
-                const SizedBox(height: 10),
+                Text('N I G E R I A  R P', style: TextStyle(fontSize: compact ? 16 : 18, fontWeight: FontWeight.w600, color: const Color(0xFF00E676), letterSpacing: 6)),
+                SizedBox(height: compact ? 8 : 10),
                 const Text("Nigeria's #1 Roleplay Server", style: TextStyle(fontSize: 14, color: Colors.white38)),
-                const SizedBox(height: 32),
-                Text('App folder:', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, letterSpacing: 1.2)),
+                SizedBox(height: compact ? 18 : 28),
+                Text('App folder:', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: compact ? 11 : 12, letterSpacing: 1.2)),
                 const SizedBox(height: 8),
                 Text(
                   _storagePath.isNotEmpty ? _storagePath : GameLauncher.defaultStoragePath,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: Colors.white70, fontSize: compact ? 11 : 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -331,25 +337,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Expanded(
           flex: 2,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 24, vertical: compact ? 12 : 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _Btn(icon: Icons.language, label: 'Website', onTap: () => _openUrl('https://kingsng.netlify.app')),
-                const SizedBox(height: 16),
-                _Btn(icon: Icons.discord, label: 'Discord', onTap: () => _openUrl('https://discord.gg/kingsng')),
-                const SizedBox(height: 16),
-                _Btn(icon: Icons.gavel, label: 'Rules', onTap: () => _openUrl('https://kingsng.netlify.app/rules')),
-                const SizedBox(height: 16),
-                _Btn(icon: Icons.folder_open, label: 'Open Folder', onTap: _openGameFolder),
-                const SizedBox(height: 16),
-                _Btn(icon: Icons.download_rounded, label: 'Modpack', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath)))),
-                const SizedBox(height: 16),
-                _Btn(
+                SizedBox(width: buttonWidth, height: buttonHeight, child: _Btn(icon: Icons.language, label: 'Website', onTap: () => _openUrl('https://kingsng.netlify.app'))),
+                SizedBox(height: buttonSpacing),
+                SizedBox(width: buttonWidth, height: buttonHeight, child: _Btn(icon: Icons.discord, label: 'Discord', onTap: () => _openUrl('https://discord.gg/kingsng'))),
+                SizedBox(height: buttonSpacing),
+                SizedBox(width: buttonWidth, height: buttonHeight, child: _Btn(icon: Icons.gavel, label: 'Rules', onTap: () => _openUrl('https://kingsng.netlify.app/rules'))),
+                SizedBox(height: buttonSpacing),
+                SizedBox(width: buttonWidth, height: buttonHeight, child: _Btn(icon: Icons.folder_open, label: 'Open Folder', onTap: _openGameFolder)),
+                SizedBox(height: buttonSpacing),
+                SizedBox(width: buttonWidth, height: buttonHeight, child: _Btn(icon: Icons.download_rounded, label: 'Modpack', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))))),
+                SizedBox(height: buttonSpacing),
+                SizedBox(width: buttonWidth, height: buttonHeight, child: _Btn(
                   icon: Icons.play_arrow_rounded,
                   label: _filesReady ? 'Play Now' : 'Get Modpack',
                   onTap: _filesReady ? _launchGame : () => Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadScreen(storagePath: _storagePath))),
-                ),
+                )),
               ],
             ),
           ),
