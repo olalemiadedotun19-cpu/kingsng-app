@@ -42,7 +42,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const _Tile(icon: Icons.dns, title: 'Server', subtitle: '51.38.205.167:29291'),
           const _Tile(icon: Icons.language, title: 'Website', subtitle: 'kingsng.netlify.app'),
           const _Tile(icon: Icons.info_outline, title: 'Version', subtitle: 'Kings Nigeria RP v1.0'),
-          _Tile(icon: Icons.folder_outlined, title: 'Game Files', subtitle: widget.storagePath),
+          _Tile(icon: Icons.folder_open, title: 'Game Files Path', subtitle: _diagnostics['gameDataPath'] ?? widget.storagePath),
+          _Tile(icon: Icons.download_done, title: 'SA-MP Installed', subtitle: (_diagnostics['sampInstalled'] ?? false) ? 'Yes' : 'No'),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),

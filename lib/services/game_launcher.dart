@@ -80,19 +80,10 @@ class GameLauncher {
     }
   }
 
-  /// Test if SA-MP server is reachable
+  /// Test if the device has active network connectivity
+  /// SA-MP uses UDP, so a direct TCP probe is not reliable.
   static Future<bool> isServerOnline() async {
-    try {
-      final socket = await Socket.connect(
-        serverIP,
-        int.parse(serverPort),
-        timeout: const Duration(seconds: 5)
-      );
-      socket.destroy();
-      return true;
-    } catch (_) {
-      return false;
-    }
+    return await isNetworkAvailable();
   }
 
   /// Get SA-MP game data path (where game files should be placed)
@@ -202,13 +193,7 @@ class GameLauncher {
       return LaunchResult(success: false, error: 'Game files not found or invalid');
     }
 
-    // Step 4: Test server connectivity
-    final serverOnline = await isServerOnline();
-    if (!serverOnline) {
-      return LaunchResult(success: false, error: 'Server unreachable');
-    }
-
-    // Step 5: Try to launch with different package variants
+    // Step 4: Try deep-link launch first, then fallback to package launch
     for (final packageName in sampPackageVariants) {
       try {
         final intent = AndroidIntent(
@@ -219,12 +204,28 @@ class GameLauncher {
         );
         await intent.launch();
 
-        // Save successful server to recent list
         await _saveRecentServer(serverIP, int.parse(serverPort));
-
         return LaunchResult(success: true);
-      } catch (e) {
-        continue; // Try next package variant
+      } catch (_) {
+        continue;
+      }
+    }
+
+    // Try package launch if deep-link failed.
+    for (final packageName in sampPackageVariants) {
+      try {
+        final intent = AndroidIntent(
+          action: 'android.intent.action.MAIN',
+          category: 'android.intent.category.LAUNCHER',
+          package: packageName,
+          flags: <int>[0x10000000],
+        );
+        await intent.launch();
+
+        await _saveRecentServer(serverIP, int.parse(serverPort));
+        return LaunchResult(success: true);
+      } catch (_) {
+        continue;
       }
     }
 
@@ -278,25 +279,30 @@ class GameLauncher {
     };
   }
 
-  /// Check if SA-MP app is installed
+  /// Check if SA-MP app is installed by checking known app package directories
   static Future<bool> isSAMPInstalled() async {
     if (!Platform.isAndroid) return false;
 
-    // Try different package variants
-    for (final packageName in sampPackageVariants) {
-      try {
-        final intent = AndroidIntent(
-          action: 'android.intent.action.VIEW',
-          data: 'samp://$serverAddress',
-          package: packageName,
-        );
-        // This will throw if package doesn't exist
-        await intent.launch();
-        return true;
-      } catch (_) {
-        continue;
+    final hasPermission = await requestStoragePermission();
+    if (!hasPermission) return false;
+
+    try {
+      final dir = await getExternalStorageDirectory();
+      if (dir != null) {
+        final path = dir.path;
+        final index = path.indexOf('Android/data');
+        if (index != -1) {
+          final root = path.substring(0, index);
+          for (final variant in sampPackageVariants) {
+            final variantDir = Directory('$root/Android/data/$variant');
+            if (await variantDir.exists()) {
+              return true;
+            }
+          }
+        }
       }
-    }
+    } catch (_) {}
+
     return false;
   }
 }
