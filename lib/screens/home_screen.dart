@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
@@ -43,19 +44,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _launchGame() async {
-    final success = await GameLauncher.launchSAMP();
-    if (!success) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_filesReady ? 'Could not launch SA-MP. Make sure it is installed.' : 'Required files are missing. Install the modpack first.')),
-      );
-      return;
-    }
+    final result = await GameLauncher.launchSAMP();
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Launching SA-MP...')),
-    );
+
+    if (result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Launching SA-MP and connecting to server...')),
+      );
+    } else {
+      String errorMessage;
+      switch (result.error) {
+        case 'Storage permissions required':
+          errorMessage = 'Storage permission required. Please grant permission in settings.';
+          break;
+        case 'No internet connection':
+          errorMessage = 'No internet connection. Please check your network.';
+          break;
+        case 'Game files not found or invalid':
+          errorMessage = 'Game files missing or invalid. Please download and install the modpack.';
+          break;
+        case 'Server unreachable':
+          errorMessage = 'Server is currently unreachable. Please try again later.';
+          break;
+        case 'SA-MP app not installed':
+          errorMessage = 'SA-MP app not installed. Please install SA-MP from Google Play Store.';
+          break;
+        default:
+          errorMessage = result.error ?? 'Unknown error occurred. Please try again.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    }
   }
 
   @override
@@ -133,10 +155,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final titleSize = compact ? 46.0 : 56.0;
     final subtitleSize = compact ? 12.0 : 13.0;
     final infoFont = compact ? 12.0 : 13.0;
-    final buttonHeight = compact ? 52.0 : 60.0;
-    final buttonFont = compact ? 16.0 : 18.0;
-    final buttonWidth = width < 360 ? width - 40 : (width - 56) / 2;
-    final mainButtonWidth = width < 360 ? width - 80 : 220.0;
+    final buttonHeight = compact ? 48.0 : 56.0;
+    final buttonFont = compact ? 14.0 : 18.0;
+    final buttonWidth = min(width * 0.48, width < 360 ? width - 40 : 180.0);
+    final mainButtonWidth = min(width - 80, 220.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
