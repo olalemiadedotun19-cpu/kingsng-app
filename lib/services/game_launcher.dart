@@ -82,7 +82,7 @@ class GameLauncher {
     }
   }
 
-  /// Launch SA-MP with auto-connect to LetMeHost server
+  /// Launch SA-MP game
   static Future<bool> launchSAMP() async {
     if (!Platform.isAndroid) return false;
 
@@ -92,17 +92,11 @@ class GameLauncher {
         return false;
       }
 
-      // Launch SA-MP with server connection intent
-      final intent = AndroidIntent(
+      // Simple intent to launch SA-MP - no extra arguments
+      const intent = AndroidIntent(
         action: 'android.intent.action.MAIN',
         package: sampPackageName,
-        componentName: '$sampPackageName/$sampPackageName.MainActivity',
         flags: <int>[0x10000000],
-        arguments: <String, dynamic>{
-          'connect_to': serverAddress,
-          'server': serverIP,
-          'port': int.parse(serverPort),
-        },
       );
       await intent.launch();
       return true;

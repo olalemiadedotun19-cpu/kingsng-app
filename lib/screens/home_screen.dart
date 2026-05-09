@@ -245,10 +245,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
           child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
               SizedBox(width: buttonWidth, child: _Btn(icon: Icons.language, label: 'Website', onTap: () => _openUrl('https://kingsng.netlify.app'))),
